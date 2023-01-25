@@ -227,11 +227,10 @@ function Get-MigrationBatches {
 
 # Function that creates migration batch
 function New-MigrationBatches {
-    [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]$CSVFileContent,
         [Parameter(Mandatory = $true)]$UniqueIMAPConfigurations,
-        [Parameter(Mandatory = $true)]$ExistingMigrationBatches
+        [Parameter(Mandatory = $false)]$ExistingMigrationBatches
     )
 
     # Counter to keep track of the number of batches created
@@ -401,7 +400,9 @@ $ExistingMigrationBatches | Format-Table -AutoSize
 # Use New-MigrationBatches function to create the MigrationBatches using the IMAP Configuration values
 $NewMigrationBatches = New-MigrationBatches -CSVFileContent $CSVFileContent -UniqueIMAPConfigurations $UniqueIMAPConfigurations -ExistingMigrationBatches $ExistingMigrationBatches
 
-$NewMigrationBatches | Format-Table -AutoSize
+if ($NewMigrationBatches ) {
+    $NewMigrationBatches | Format-Table -AutoSize
+}
 
 # Use Start-MigrationBatches function to start the MigrationBatches using the IMAP Configuration values
 Start-MigrationBatches -UniqueIMAPConfigurations $UniqueIMAPConfigurations -ReviewMigrationBatch $ReviewMigrationBeforeStarting
