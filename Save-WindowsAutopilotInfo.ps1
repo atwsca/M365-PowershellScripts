@@ -28,7 +28,7 @@ if (!(Test-Path -Path $Location)) {
 }
 
 # If the location is not set to the directory, set it
-if (!(Test-Path -Path $PWD.Path -Equals $Location)) {
+if (!($PWD.Path -eq $Location)) {
     Write-Host "Changing directory to $Location"
     Set-Location -Path $Location
 }
