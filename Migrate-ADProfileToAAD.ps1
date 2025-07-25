@@ -35,13 +35,29 @@ function Import-WindowsCredentials {
 }
 
 function Repair-OneDrivePath {
-    param ($TargetProfile)
-    $userProfilePath = "C:\Users\$TargetProfile"
-    $oneDrivePath = Join-Path $userProfilePath "OneDrive"
-    if (Test-Path $oneDrivePath) {
-        Write-Output "OneDrive path exists: $oneDrivePath"
+    param (
+        [string]$TargetProfile
+    )
+
+    $newProfilePath = "C:\Users\$TargetProfile"
+    $oldOneDrivePath = (Get-ItemProperty -Path "HKCU:\Software\Microsoft\OneDrive" -ErrorAction SilentlyContinue).UserFolder
+
+    if ($oldOneDrivePath -and ($oldOneDrivePath -notlike "$newProfilePath*")) {
+        Write-Warning "OneDrive is still pointing to the old profile path: $oldOneDrivePath"
+        Write-Output "Resetting OneDrive configuration..."
+
+        # Stop OneDrive
+        Stop-Process -Name OneDrive -Force -ErrorAction SilentlyContinue
+
+        # Reset OneDrive
+        Start-Process -FilePath "$env:SystemRoot\System32\OneDriveSetup.exe" -ArgumentList "/reset" -Wait
+
+        # Start OneDrive again
+        Start-Process -FilePath "$env:ProgramFiles\Microsoft OneDrive\OneDrive.exe"
+
+        Write-Output "OneDrive has been reset. Please sign in again to configure the correct sync path."
     } else {
-        Write-Warning "OneDrive path not found. User may need to re-sign in."
+        Write-Output "OneDrive path is already correct or not configured yet."
     }
 }
 
